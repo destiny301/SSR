@@ -5,6 +5,7 @@ import torch.nn.functional as F
 from model.tile_refinement import TileRefinement, Upsample
 from model.tile_selection import TileSelection
 from model.net_blocks import window_partition, window_reverse
+from utils.gumbel_sigmoid import gumbel_sigmoid
 
 class SSR(nn.Module):
     '''
@@ -31,7 +32,9 @@ class SSR(nn.Module):
     def forward(self, x):
         B, C, H, W = x.shape
         patch_fea3, patch_fea2, patch_fea1 = self.select_model(x)
-        pi_prime = F.gumbel_softmax(patch_fea3, hard=True) # B, 1, 4, 4
+        pi_prime = patch_fea3.view(-1)
+        pi_prime = pi_prime > torch.quantile(pi_prime, 0.75)
+        # pi_prime = gumbel_sigmoid(patch_fea3, hard=True) # top25% or gumbel_sigmoid hard selection
         patch_x = window_partition(x.permute(0, 2, 3, 1), window_size=(H//4)) # B*4*4, H/4, W/4, 3
         patch_x = patch_x.permute(0, 3, 1, 2)  # B*4*4, 3, H/4, W/4
         pi_prime = pi_prime.view(-1)
@@ -74,7 +77,9 @@ class SSR_wo_conv(nn.Module):
     def forward(self, x):
         B, C, H, W = x.shape
         patch_fea3, patch_fea2, patch_fea1 = self.select_model(x)
-        pi_prime = F.gumbel_softmax(patch_fea3, hard=True) # B, 1, 4, 4
+        pi_prime = patch_fea3.view(-1)
+        pi_prime = pi_prime > torch.quantile(pi_prime, 0.75)
+        # pi_prime = gumbel_sigmoid(patch_fea3, hard=True) # top25% or gumbel_sigmoid hard selection
         patch_x = window_partition(x.permute(0, 2, 3, 1), window_size=(H//4)) # B*4*4, H/4, W/4, 3
         patch_x = patch_x.permute(0, 3, 1, 2)  # B*4*4, 3, H/4, W/4
         pi_prime = pi_prime.view(-1)
