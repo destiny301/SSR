@@ -130,7 +130,7 @@ def main(args):
                     
                     lte = criterion(p3te, torch.squeeze(a3te).long() if args.loss == 'ce' else a3te)
                     test_loss += lte.item()
-                    
+                    p3te = nn.Sigmoid()(p3te)
                     if args.loss != 'bce':
                         p3te = torch.unsqueeze(torch.argmax(p3te, 1), 1)
 
@@ -175,7 +175,7 @@ if __name__ == '__main__':
     argparser.add_argument('--conv', action='store_true', help='conv layers for negative tiles or not')
     argparser.add_argument('--dim', type=int, help='attention embedding dimension for tile selection', default=96)
     argparser.add_argument('--patchsz', type=int, help='patchsz for TS Module embedding', default=2)
-    argparser.add_argument('--th', type=float, help='threshold for attention or not', default=0.01)
+    argparser.add_argument('--th', type=float, help='threshold for attention or not', default=0.5)
     argparser.add_argument('--dev', type=str, help='cuda device', default='cuda:0')
     argparser.add_argument('--epoch', type=int, help='number of training epochs', default=50)
     argparser.add_argument('--lr', type=float, help='learning rate', default=0.00001)
