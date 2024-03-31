@@ -45,7 +45,7 @@ If you use SSR in your research or wish to refer to the results published here, 
 
 ## Simple Start:
 ```shell
-python train.py --pretrain --pyramid --conv --eval --imgsz 256 --patchsz 2 --ckpt /your/data/root
+python train.py --pretrain --pyramid --conv --eval --imgsz 256 --patchsz 2 --ckpt /your/TR_checkpoint/root
 ```
 
 TR module can be pretrained solely with ImageNet dataset (the training of this module doesn't need segmentation or Object Detection labels), and load it when initialize our SSR model
